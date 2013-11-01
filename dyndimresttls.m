@@ -114,7 +114,11 @@ for j=1:Nelt;
         for k=1:2
             philoc = pg(k)*phi(1,j);
             dloc(k) = dval(philoc,lc);
-            sloc = sloc + 0.5 * (1-dloc(k)) * E * e(1,j);
+            if (e(1,j) >= 0)    %tension - damage reduces capability
+                sloc = sloc + 0.5 * (1-dloc(k)) * E * e(i,j);
+            else                %compression - damage has no effect
+                sloc = sloc + 0.5 * E * e(i,j);
+            end
         end
         s(1,j) = delta *  sloc +  (1-delta) * E * e(1,j);
     elseif  (phi(1,j) <= 0 && phi(1,j+1) > 0)
@@ -123,7 +127,11 @@ for j=1:Nelt;
         for k=1:2
             philoc = pg(k)*phi(1,j+1);
             dloc(k) = dval(philoc,lc);
-            sloc = sloc + 0.5 * (1-dloc(k)) * E * e(1,j);
+            if (e(1,j) >= 0)    %tension - damage reduces capability
+                sloc = sloc + 0.5 * (1-dloc(k)) * E * e(i,j);
+            else                %compression - damage has no effect
+                sloc = sloc + 0.5 * E * e(i,j);
+            end
         end
         s(1,j) = delta *  sloc +  (1-delta) * E * e(1,j);
     end
@@ -287,7 +295,11 @@ for i=2:Ntim;
             for k=1:2
                 philoc = pg(k)*phi(i,j);
                 dlocg(k) = dval(philoc,lc);
-                sloc = sloc + 0.5 * (1-dlocg(k)) * E * e(i,j);
+                if (e(i,j) >= 0)    %tension - damage reduces capability
+                    sloc = sloc + 0.5 * (1-dlocg(k)) * E * e(i,j);
+                else                %compression - damage has no effect
+                    sloc = sloc + 0.5 * E * e(i,j);                    
+                end
             end
             s(i,j) = delta * sloc +  (1-delta) * E * e(i,j);
         elseif  (phi(i,j) <= 0 && phi(i,j+1) > 0)
@@ -296,7 +308,11 @@ for i=2:Ntim;
             for k=1:2
                 philoc = pg(k)*phi(i,j+1);
                 dlocg(k) = dval(philoc,lc);
-                sloc = sloc + 0.5 * (1-dlocg(k)) * E * e(i,j);
+                if (e(i,j) >= 0)    %tension - damage reduces capability
+                    sloc = sloc + 0.5 * (1-dlocg(k)) * E * e(i,j);
+                else                %compression - damage has no effect
+                    sloc = sloc + 0.5 * E * e(i,j);                    
+                end
             end
             s(i,j) = delta * sloc +  (1-delta) * E * e(i,j);
         end
