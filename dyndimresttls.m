@@ -348,7 +348,7 @@ for j = 1:size(u,1)
     %plot(x+u(j,:),x*0,'x-');
     hold on
     %plot(x+0*u(j,:),[s(end,1) s(j,:)],'x-')
-    plot(x+0*u(j,:),[d(end,1) d(j,:)],'x-')
+    plot(x+0*u(j,:),[d(j,1) d(j,:)],'x-')
     plot(x+0*u(j,:),phi(j,:),'rx-')
         xlabel('Position, x')
     legend('d','\Phi')
