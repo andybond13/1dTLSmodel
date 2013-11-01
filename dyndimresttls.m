@@ -340,7 +340,7 @@ for j = 1:size(u,1)
     clf(1)
     col = [s(j,1) s(j,:)];
     X = x+u(j,:);
-    Y = x*0;
+    Y = (e(j,:).^2*E*0.5)';
     Z = x*0;
     %plot(x,u(j,:)+x,'x-')
     %plot(x+u(j,:),v(j,:),'x-')
@@ -349,6 +349,7 @@ for j = 1:size(u,1)
     hold on
     %plot(x+0*u(j,:),[s(end,1) s(j,:)],'x-')
     plot(x+0*u(j,:),[d(j,1) d(j,:)],'x-')
+    %plot(x+0*u(j,:),[Y(1);Y(:)],'x-')
     plot(x+0*u(j,:),phi(j,:),'rx-')
         xlabel('Position, x')
     legend('d','\Phi')
