@@ -4,47 +4,6 @@
 % and a brittle damage model Y = Yc is used
 clear all;
 %faire converger le cas mineaire
-% this function gives d in terms of phi
-function res = dval(phi,lc)
-x = phi/lc;
-%cas lin d = phi/lc
-if   (x < 0)  res = 0;
-elseif (x > 1) res = 1;
-else 
-%res = phi/lc; %lin
-res = 2 * x - x*x ;  %quad
-%res = 3 * x - 3*x*x + x*x*x ;  %cubic
-%res = x*x;   %sqrt
-%if (x<=0.5) res = 2*x^2; else res = -2*x^2 + 4 * x - 1; endif% s shape
-endif
-endfunction
-
-% this function is the derivative of d with respect to phi
-function res = dp(phi,lc)
-res = 0;
-x = phi/lc;
-if   (x >= 0 && x <= 1)  
-%res = 1/lc;           %lin
-res = 2/lc * (1-x) ;  %quad
-%res = 1/lc * (3-6*x+3*x*x); %cubic
-%res = 1/lc * 2*x; %sqrt
-%if (x<=0.5) res = 4*x/lc; else res = (-4 * x + 4)/lc; endif% s shape
-endif
-endfunction
-
-%second derivative of d with respect to phi
-function res = dpp(phi,lc)
-res = 0;
-x = phi/lc;
-%cas lin d = phi/lc
-%cas quad d = 2 * (phi/lc) -(phi/lc)**2 
-if   (x >= 0 && x <= 1)  
-res = -2/(lc*lc) ; % quad
-%res = (1/lc)*(1/lc) * 6 * (-1+x); %cubic
-%res = (1/lc)*(1/lc) * 2; %sqrt
-%if (x<=0.5) res = 4/(lc*lc); else res = -4/(lc*lc); endif% s shape
-endif
-endfunction
 
 Ntim = 200;
 Nelt = 200;
