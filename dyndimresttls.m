@@ -80,6 +80,15 @@ for j=1:Nnod;
     u(1,j) = x(j) * ec * L * 0.999;
     ustat(1,j) = x(j) * ec * L * 0.999;
     phi(1,j) = h-x(j);
+    if (x(j) > 0.3)
+       phi(1,j) = x(j)-0.6;
+    end
+        if (x(j) > 0.6)
+            phi(1,j) = 0.6-x(j);
+        end
+    %if (x(j) > 0.7)
+    %   phi(1,j) = 0.8-x(j);
+    %end
 end
 
 phidot(1) = 0;
@@ -207,12 +216,13 @@ for i=2:Ntim;
             %dphi
             %i
             %dval(phi(i,1),lc)
-            YbarmYc = residu_Y/(dval(phi(i,1),lc));
+            phimax = max(phi(i,:)); % this needs revisiting when there are multiple possibilities
+            YbarmYc = residu_Y/(dval(phimax,lc));
             residu = YbarmYc/Yc;
             err_crit = abs(residu);
-            tangent = tangent_Y/(Yc*dval(phi(i,1),lc)) - (dp(phi(i,1),lc)/dval(phi(i,1),lc)^2) * (YbarmYc/Yc);
             %if (abs(tangent) <= 1.e-10) err_crit = 0.; dphi = 0;
             %else
+            tangent = tangent_Y/(Yc*dval(phimax,lc)) - (dp(phimax,lc)/dval(phimax,lc)^2) * (YbarmYc/Yc);
             dphi = - residu/tangent;
             %end
             
