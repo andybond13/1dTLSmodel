@@ -103,6 +103,15 @@ for j=1:Nelt;
             sloc = sloc + 0.5 * (1-dloc) * E * e(1,j);
         end
         s(1,j) = delta *  sloc +  (1-delta) * E * e(1,j);
+    elseif  (phi(1,j) <= 0 && phi(1,j+1) > 0)
+        delta = abs(phi(1,j+1))/(abs(phi(1,j))+abs(phi(1,j+1)));
+        sloc = 0;
+        for k=1:2
+            philoc = pg(k)*phi(1,j+1);
+            dloc(k) = dval(philoc,lc);
+            sloc = sloc + 0.5 * (1-dloc(k)) * E * e(1,j);
+        end
+        s(1,j) = delta *  sloc +  (1-delta) * E * e(1,j);
     end
 end
 
@@ -164,6 +173,19 @@ for i=2:Ntim;
                 else tangent_Y = tangent_Y + (0.5 * E * e(i,j+1) * e(i,j+1) - Yc)  * dp(0,lc);
                 end
                 loop_tangent = loop_tangent + 1;
+            elseif  (phi(i,j) <= 0 && phi(i,j+1) > 0)
+                delta = h * abs(phi(i,j+1))/(abs(phi(i,j))+abs(phi(i,j+1)));
+                for k=1:2
+                    philoc = pg(k)*phi(i,j+1);
+                    residu_Y = residu_Y + delta *  0.5 * (0.5 * E * e(i,j) * e(i,j) - Yc) * dp(philoc,lc);
+                    tangent_Y = tangent_Y + delta *  0.5 * (0.5 * E * e(i,j) * e(i,j) - Yc) * dpp(philoc,lc);
+                end
+                loop_residu = loop_residu + 1;
+                if (delta < h) tangent_Y = tangent_Y + (0.5 * E * e(i,j) * e(i,j) - Yc)* dp(0,lc);  %todo-doublecheck this
+                else tangent_Y = tangent_Y + (0.5 * E * e(i,j+1) * e(i,j+1) - Yc)  * dp(0,lc);              %todo-doublecheck this
+                end
+                loop_tangent = loop_tangent + 1;
+                
             end
         end
         
@@ -244,6 +266,15 @@ for i=2:Ntim;
             sloc = 0;
             for k=1:2
                 philoc = pg(k)*phi(i,j);
+                dlocg(k) = dval(philoc,lc);
+                sloc = sloc + 0.5 * (1-dlocg(k)) * E * e(i,j);
+            end
+            s(i,j) = delta * sloc +  (1-delta) * E * e(i,j);
+        elseif  (phi(i,j) <= 0 && phi(i,j+1) > 0)
+            delta = abs(phi(i,j+1))/(abs(phi(i,j))+abs(phi(i,j+1)));
+            sloc = 0;
+            for k=1:2
+                philoc = pg(k)*phi(i,j+1);
                 dlocg(k) = dval(philoc,lc);
                 sloc = sloc + 0.5 * (1-dlocg(k)) * E * e(i,j);
             end
