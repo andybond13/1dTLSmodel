@@ -358,14 +358,14 @@ end
 
 
 %%
-figure
+f=figure;
 %plot(x+u(end,:),0*x,'x-');
 %plot(x+u(end,:),[d(end,1) d(end,:)])
 %plot(x+u(end,:),[s(end,1) s(end,:)])
 %plot(x+u(end,:),phi(end,:),'x-')
 %axis([min(min(ones(size(u,1),1)*x+u)),max(max(ones(size(u,1),1)*x+u)),min(min(phi))*1.1,max(max(d))*1.1])
 set(gca,'NextPlot','replaceChildren');
-
+set(f, 'Position', [100, 100, 1049, 895]);
 
 % Preallocate the struct array for the struct returned by getframe
 F(size(u,1)) = struct('cdata',[],'colormap',[]);
@@ -380,13 +380,15 @@ for j = 1:size(u,1)
     %plot(x+u(j,:),v(j,:),'x-')
     %surface(X,Y,Z,col);
     %plot(x+u(j,:),x*0,'x-');
+    axis([0 1.5 -0.5 1.5])
     hold on
     %plot(x+0*u(j,:),[s(end,1) s(j,:)],'x-')
-    plot(x+0*u(j,:),[d(j,1) d(j,:)],'x-')
+    plot(x+1*u(j,:),[d(j,1) d(j,:)],'x-')
     %plot(x+0*u(j,:),[Y(1);Y(:)],'x-')
-    plot(x+0*u(j,:),phi(j,:),'rx-')
+    plot(x+1*u(j,:),phi(j,:),'rx-')
         xlabel('Position, x')
     legend('d','\Phi')
+    title(sprintf('t = %f',t(j)));
     %plot(x,phi(j,:),'x-')
     F(j) = getframe;    
 end
