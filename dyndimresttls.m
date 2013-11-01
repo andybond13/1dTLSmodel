@@ -3,6 +3,7 @@
 % for which suddeny damage is added at the center.
 % and a brittle damage model Y = Yc is used
 clear all;
+close all;
 %faire converger le cas mineaire
 
 Ntim = 200;
@@ -288,6 +289,57 @@ for i = 1:Ntim;
     tot_energy(i) = strain_energy(i) + kinetic_energy(i) + dissip_energy(i);
 end
 
+
+%%
+figure
+%plot(x+u(end,:),0*x,'x-');
+%plot(x+u(end,:),[d(end,1) d(end,:)])
+%plot(x+u(end,:),[s(end,1) s(end,:)])
+%plot(x+u(end,:),phi(end,:),'x-')
+%axis([min(min(ones(size(u,1),1)*x+u)),max(max(ones(size(u,1),1)*x+u)),min(min(phi))*1.1,max(max(d))*1.1])
+set(gca,'NextPlot','replaceChildren');
+
+
+% Preallocate the struct array for the struct returned by getframe
+F(size(u,1)) = struct('cdata',[],'colormap',[]);
+% Record the movie
+for j = 1:size(u,1)
+    clf(1)
+    col = [s(j,1) s(j,:)];
+    X = x+u(j,:);
+    Y = x*0;
+    Z = x*0;
+    %plot(x,u(j,:)+x,'x-')
+    %plot(x+u(j,:),v(j,:),'x-')
+    %surface(X,Y,Z,col);
+    %plot(x+u(j,:),x*0,'x-');
+    hold on
+    %plot(x+0*u(j,:),[s(end,1) s(j,:)],'x-')
+    plot(x+0*u(j,:),[d(end,1) d(j,:)],'x-')
+    plot(x+0*u(j,:),phi(j,:),'rx-')
+        xlabel('Position, x')
+    legend('d','\Phi')
+    %plot(x,phi(j,:),'x-')
+    F(j) = getframe;    
+end
+writerObj = VideoWriter('video.avi'); writerObj.Quality = 100;
+open(writerObj);writeVideo(writerObj,F);close(writerObj);
+% use 1st frame to get dimensions
+%[h, w, p] = size(F(1).cdata);
+%hf = figure; 
+% resize figure based on frame's w x h, and place at (150, 150)
+%set(hf,'Position', [150 150 w h]);
+%axis off
+% Place frames at bottom left
+%movie(hf,F,4,30,[0 0 0 0]);
+
+% figure
+% surf(t,x,u','EdgeAlpha',0.25)
+% xlabel('time')
+% ylabel('x')
+% zlabel('displacement')
+% surf(t,x,[s(1:s) s]','EdgeAlpha',0.5)
+% zlabel('stress')
 
 
 
