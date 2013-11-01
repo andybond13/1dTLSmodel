@@ -86,11 +86,12 @@ phidot(1) = 0;
 
 for j=1:Nelt;
     e(1,j) = (u(1,j+1)-u(1,j))/h;
+    dloc = [0;0];
     if (phi(1,j) > 0  && phi(1,j+1) > 0)
         for k=1:2
             philoc = pg(k)*phi(1,j)+ (1-pg(k))*phi(1,j+1);
-            dloc = dval(philoc,lc);
-            s(1,j) = s(1,j) + 0.5 * (1-dloc) * E * e(1,j);
+            dloc(k) = dval(philoc,lc);
+            s(1,j) = s(1,j) + 0.5 * (1-dloc(k)) * E * e(1,j);
         end
     elseif  (phi(1,j) <= 0 && phi(1,j+1) <= 0)
         s(1,j) = E * e(1,j);
@@ -99,8 +100,8 @@ for j=1:Nelt;
         sloc = 0;
         for k=1:2
             philoc = pg(k)*phi(1,j);
-            dloc = dval(philoc,lc);
-            sloc = sloc + 0.5 * (1-dloc) * E * e(1,j);
+            dloc(k) = dval(philoc,lc);
+            sloc = sloc + 0.5 * (1-dloc(k)) * E * e(1,j);
         end
         s(1,j) = delta *  sloc +  (1-delta) * E * e(1,j);
     elseif  (phi(1,j) <= 0 && phi(1,j+1) > 0)
@@ -113,6 +114,7 @@ for j=1:Nelt;
         end
         s(1,j) = delta *  sloc +  (1-delta) * E * e(1,j);
     end
+    d(1,j) = 0.5*(dloc(1)+dloc(2));
 end
 
 %acceleration
