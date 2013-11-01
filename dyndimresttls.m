@@ -220,11 +220,11 @@ for i=2:Ntim;
             YbarmYc = residu_Y/(dval(phimax,lc));
             residu = YbarmYc/Yc;
             err_crit = abs(residu);
-            %if (abs(tangent) <= 1.e-10) err_crit = 0.; dphi = 0;
-            %else
             tangent = tangent_Y/(Yc*dval(phimax,lc)) - (dp(phimax,lc)/dval(phimax,lc)^2) * (YbarmYc/Yc);
+            if (abs(tangent) <= 1.e-10) err_crit = 0.; dphi = 0;
+            else
             dphi = - residu/tangent;
-            %end
+            end
             
         end
         
