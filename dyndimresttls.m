@@ -352,7 +352,8 @@ for j = 1:size(u,1)
     %plot(x+0*u(j,:),[Y(1);Y(:)],'x-')
     plot(x+0*u(j,:),phi(j,:),'rx-')
         xlabel('Position, x')
-    legend('d','\Phi')
+        ylabel('d,\phi')
+    legend('d','\phi')
     %plot(x,phi(j,:),'x-')
     F(j) = getframe;    
 end
@@ -376,5 +377,9 @@ open(writerObj);writeVideo(writerObj,F);close(writerObj);
 % zlabel('stress')
 
 
-
+figure
+plot(t,phidot)
+xlabel('Time, t')
+ylabel('d\phi/dt')
+title('Level-Set Movement')
 
