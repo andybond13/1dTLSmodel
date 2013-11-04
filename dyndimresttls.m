@@ -83,16 +83,14 @@ for j=1:Nnod;
     if (x(j) > 0.3)
        phi(1,j) = x(j)-0.6+h;
     end
-%         if (x(j) > 0.6)
-%             phi(1,j) = 0.6-x(j);
-%         end
-    if (x(j) > 0.7)
-      phi(1,j) = 0.8-x(j)+h;
-    end
+        if (x(j) > 0.6)
+            phi(1,j) = 0.6-x(j)+h;
+        end
+%     if (x(j) > 0.7)
+%       phi(1,j) = 0.8-x(j)+h;
+%     end
 
 end
-
-phidot(1) = 0;
 
 for j=1:Nelt;
     e(1,j) = (u(1,j+1)-u(1,j))/h;
