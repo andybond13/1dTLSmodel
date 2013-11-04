@@ -1,37 +1,46 @@
-function[phi,segment]=analyzeDamage(x,phi,h)
+function[phinew,segment]=analyzeDamage(x,phi,h)
 
 %produce:
-%new phi based on distances
+%new phi based on distances - maxima
 
-list_zero = [];
-direction = []; %1 or -1: slope
+list_max = [];
+value_max = [];
+%direction = []; %1 or -1: slope
 for i = 1:length(phi)-1
-    if (phi(i)*phi(i+1) <= 0)
-        phi1 = phi(i);
-        phi2 = phi(i+1);
-        delta = phi1/(phi1+phi2)*h;
-        list_zero(end+1) = x(i) + delta;
-        dir = 1;
-        if (phi2 < phi1)
-            dir = -1;
+    if ((abs(phi(i)-phi(i+1)) > h*1e-8) && (i > 1) && (i < length(phi)-1)) %local maxima/minima
+        if ((phi(i) > phi(i-1)) && (phi(i+1)>phi(i+2)))
+            delta = (phi(i+1)-phi(i) + h)/2;
+            list_max(end+1) = x(i) + delta;
+            value_max(end+1) = phi(i) + delta;
         end
-        direction(end+1) = dir;
     end
+    if ((i == 1) && phi(1)>phi(2))
+                    list_max(end+1) = x(i);
+                    value_max = phi(1);
+    end
+    if ((i == length(phi)-1) && phi(2)>phi(1))
+                    list_max(end+1) = x(i+1);
+                    value_max = phi(2);
+    end
+
 end
 
 segment = {};
-for j=1:length(list_zero)
+for j=1:length(list_max)
     segment{j} = [];
 end
 
+assert(length(x) >= 1);
+
 for i = 1:length(phi)
-   phinew(i) = min(abs(x(i) -list_zero));
+   phinew(i) = -min(-value_max+abs(x(i) -list_max));
    dir = 0;
    
-   for j=1:length(list_zero)
-       if (phinew(i) == abs(x(i)-list_zero(j)))
+   for j=1:length(list_max)
+       if (phinew(i) == -min(-value_max(j)+abs(x(i) -list_max(j))))
+           %phinew(i) = phinew(i) + value_max(j);
            %correct sign
-           phinew(i) = (x(i)-list_zero(j)) * direction(j);
+           %phinew(i) = (x(i)-list_zero(j)) * direction(j);
            %add to segment
            segment{j}(end+1) = i;
            break;
@@ -40,10 +49,16 @@ for i = 1:length(phi)
 end
 
 %join segments together if same peak
-for j=1:length(list_zero)-1
-    if ((direction(j) == 1)  && (direction(j+1) == -1))
+for j=1:length(list_max)-1
+    if (abs(list_max(j)-list_max(j+1)) < 1e-8)
         segment{j} = [segment{j} segment{j+1}];
         segment{j+1} = [];
+        list_max(j) = [];
+        value_max(j) = [];
     end
     
 end
+
+
+
+1+1;
