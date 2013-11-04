@@ -225,8 +225,8 @@ for i=2:Ntim;
                 %dphi
                 %i
                 %dval(phi(i,1),lc)
-                %phimax = max(phi(i,sbegin:send));
-                phimax=phi(i,sbegin);
+                phimax = max(phi(i,sbegin:send));
+                %phimax=phi(i,sbegin);
                 YbarmYc = residu_Y/(dval(phimax,lc));
                 residu = YbarmYc/Yc;
                 err_crit = abs(residu);
@@ -262,6 +262,10 @@ for i=2:Ntim;
             
             for j=sbegin:send;
                 phi(i,j) = phi(i,j) + dphi;
+            end
+            if (nbiter(i)>50)
+                dphi = abs(dphi/2);
+                break;
             end
         end %while
         
