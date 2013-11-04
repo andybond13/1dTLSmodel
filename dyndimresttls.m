@@ -135,6 +135,7 @@ for j=2:Nnod-1;
 end
 
 nbiter(1) = 0;
+[phi(1,:),segments]=analyzeDamage(x,phi(1,:),h);
 len = 0;
 for l = 1:length(segments)
         if (size(segments{l},2)==0)
@@ -166,13 +167,13 @@ for i=2:Ntim;
         phi(i,j) = phi(i-1,j);
     end
     
-    [phi(i,:),segments]=analyzeDamage(x,phi(i,:),h);
     for l = 1:length(segments)
         if (size(segments{l},2)==0)
             continue;
         end
-        sbegin = segments{l}(1);
-        send = segments{l}(end);
+
+        sbegin = min(segments{l});
+        send = max(segments{l});
         
         err_crit = 1e15;
         nbiter(i) = 0;
@@ -281,9 +282,7 @@ for i=2:Ntim;
         
     end %for segments
     
-    phidot(i) = (phi(i,1) - phi(i-1,1))/dt;
-    
-    
+    [phi(i,:),segments]=analyzeDamage(x,phi(i,:),h);
     
     for l=1:length(segments)
         if (size(segments{l},2)==0)
