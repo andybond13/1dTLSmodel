@@ -269,12 +269,13 @@ for i=2:Ntim;
                 dphi = -residu_delay/tangent_delay;
             end
             
+
+            if (nbiter(i)>50)
+                assert(1==0);
+            end
+            
             for j=sbegin:send;
                 phi(i,j) = phi(i,j) + dphi;
-            end
-            if (nbiter(i)>50)
-                dphi = abs(dphi/2);
-                break;
             end
         end %while
         
