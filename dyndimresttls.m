@@ -135,6 +135,14 @@ for j=2:Nnod-1;
 end
 
 nbiter(1) = 0;
+len = 0;
+for l = 1:length(segments)
+        if (size(segments{l},2)==0)
+            continue;
+        end
+        len = len +1;
+end
+phidot = zeros(1,len);
 
 for i=2:Ntim;
     
@@ -277,6 +285,15 @@ for i=2:Ntim;
     
     
     
+    for l=1:length(segments)
+        if (size(segments{l},2)==0)
+            continue;
+        end
+        median(segments{l});
+        smid = floor(median(segments{l}));
+        phidot(i,l) = (phi(i,smid) - phi(i-1,smid))/dt;
+    end
+        
     %updating the stress
     for j=1:Nelt;
         if (phi(i,j) > 0 && phi(i,j+1) > 0)
@@ -406,5 +423,11 @@ figure
 plot(t,phidot)
 xlabel('Time, t')
 ylabel('d\phi/dt')
+title('Level-Set Movement by Segment')
+
+figure
+plot(x,phi)
+xlabel('Position, x')
+ylabel('\phi')
 title('Level-Set Movement')
 
