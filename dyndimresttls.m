@@ -173,7 +173,7 @@ for i=2:Ntim;
             residu_Y = 0; tangent_Y = 0;
             loop_residu = 0;
             loop_tangent = 0;
-            for j=sbegin:send-1;
+            for j=sbegin:min(send-1,Nelt)
                 if (phi(i,j) > 0 && phi(i,j+1) > 0)
                     for k=1:2
                         philoc = pg(k)*phi(i,j) + (1-pg(k))*phi(i,j+1);
@@ -225,7 +225,8 @@ for i=2:Ntim;
                 %dphi
                 %i
                 %dval(phi(i,1),lc)
-                phimax = max(phi(i,sbegin:send));
+                %phimax = max(phi(i,sbegin:send));
+                phimax=phi(i,sbegin);
                 YbarmYc = residu_Y/(dval(phimax,lc));
                 residu = YbarmYc/Yc;
                 err_crit = abs(residu);
