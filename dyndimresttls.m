@@ -310,7 +310,7 @@ for i=2:Ntim;
                     phihist = [dphi; phi(i-1,j); phi(i-2,j)];
                     phi(i,j) = w*phihist;
                 else
-                    phi(i,j) = phi(i,j) + dphi;
+                    phi(i,j) = phi(i-1,j) + dphi;
                 end
                 phi(i,j) = max(phi(i,j),phi(i-1,j)); %constraint: dphi >= 0
             end
