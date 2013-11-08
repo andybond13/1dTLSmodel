@@ -24,6 +24,7 @@ lc = 0.2;
 % two gauss point on the element
 pg(1) = (1-sqrt(3)/3)/2;
 pg(2) = (1+sqrt(3)/3)/2;
+intorder = 6;
 
 d = zeros(Ntim, Nelt);
 s = zeros(Ntim, Nelt);
@@ -279,7 +280,29 @@ for i=2:Ntim;
             end
             
             for j=sbegin:send;
-                phi(i,j) = phi(i,j) + dphi;
+                if (i > 6 && intorder >= 6)
+                    w = [60/147 360/147 -450/147 400/147 -225/147 72/147 -10/147];
+                    phihist = [dphi; phi(i-1,j); phi(i-2,j); phi(i-3,j); phi(i-4,j); phi(i-5,j); phi(i-6,j)];                    
+                    phi(i,j) = dphi*2/3 + 4/3*phi(i-1,j) - 1/3*phi(i-2,j);
+                elseif (i > 5 && intorder >= 5)
+                    w = [60/137 300/137 -300/137 200/137 -75/137 12/137];
+                    phihist = [dphi; phi(i-1,j); phi(i-2,j); phi(i-3,j); phi(i-4,j); phi(i-5,j)];
+                    phi(i,j) = w*phihist;  
+                elseif (i > 4 && intorder >= 4)
+                    w = [12/25 48/25 -36/25 16/25 -3/25];
+                    phihist = [dphi; phi(i-1,j); phi(i-2,j); phi(i-3,j); phi(i-4,j)];
+                    phi(i,j) = w*phihist;                    
+                elseif (i > 3 && intorder >= 3)
+                    w = [6/11 18/11 -9/11 2/11];
+                    phihist = [dphi; phi(i-1,j); phi(i-2,j); phi(i-3,j)];
+                    phi(i,j) = w*phihist;
+                elseif (i > 2 && intorder >= 2)
+                    w = [2/3 4/3 -1/3];
+                    phihist = [dphi; phi(i-1,j); phi(i-2,j)];
+                    phi(i,j) = w*phihist;
+                else
+                    phi(i,j) = phi(i,j) + dphi;
+                end
             end
         end %while
         
