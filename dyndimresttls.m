@@ -80,15 +80,21 @@ for j=1:Nnod;
     u(1,j) = x(j) * ec * L * 0.999;
     ustat(1,j) = x(j) * ec * L * 0.999;
     phi(1,j) = h-x(j);
-    if (x(j) > 0.3)
-       phi(1,j) = x(j)-0.6+h;
-    end
-        if (x(j) > 0.6)
-            phi(1,j) = 0.6-x(j)+h;
-        end
-%     if (x(j) > 0.7)
-%       phi(1,j) = 0.8-x(j)+h;
+%     if (x(j) > 0.3)
+%        phi(1,j) = x(j)-0.6+h;
 %     end
+%         if (x(j) > 0.6)
+%             phi(1,j) = 0.6-x(j)+h;
+%         end
+% %     if (x(j) > 0.7)
+% %       phi(1,j) = 0.8-x(j)+h;
+% %     end
+% %     if (x(j) > 0.1)
+% %        phi(1,j) = x(j)-0.2+h;
+% %     end
+% %     if (x(j) > 0.3)
+% %       phi(1,j) = 0.4-x(j)+h;
+% %     end
 
 end
 
