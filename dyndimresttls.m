@@ -24,6 +24,7 @@ lc = 0.2;
 % two gauss point on the element
 pg(1) = (1-sqrt(3)/3)/2;
 pg(2) = (1+sqrt(3)/3)/2;
+intorder = 6;
 
 d = zeros(Ntim, Nelt);
 s = zeros(Ntim, Nelt);
@@ -80,18 +81,23 @@ for j=1:Nnod;
     u(1,j) = x(j) * ec * L * 0.999;
     ustat(1,j) = x(j) * ec * L * 0.999;
     phi(1,j) = h-x(j);
-    if (x(j) > 0.3)
-       phi(1,j) = x(j)-0.6;
-    end
-        if (x(j) > 0.6)
-            phi(1,j) = 0.6-x(j);
-        end
-    %if (x(j) > 0.7)
-    %   phi(1,j) = 0.8-x(j);
-    %end
-end
+%     if (x(j) > 0.3)
+%        phi(1,j) = x(j)-0.6+h;
+%     end
+%         if (x(j) > 0.6)
+%             phi(1,j) = 0.6-x(j)+h;
+%         end
+% %     if (x(j) > 0.7)
+% %       phi(1,j) = 0.8-x(j)+h;
+% %     end
+% %     if (x(j) > 0.1)
+% %        phi(1,j) = x(j)-0.2+h;
+% %     end
+% %     if (x(j) > 0.3)
+% %       phi(1,j) = 0.4-x(j)+h;
+% %     end
 
-phidot(1) = 0;
+end
 
 for j=1:Nelt;
     e(1,j) = (u(1,j+1)-u(1,j))/h;
@@ -100,11 +106,7 @@ for j=1:Nelt;
         for k=1:2
             philoc = pg(k)*phi(1,j)+ (1-pg(k))*phi(1,j+1);
             dloc(k) = dval(philoc,lc);
-            if (e(1,j) >= 0)    %tension - damage reduces capability
-                s(1,j) = s(1,j) + 0.5 * (1-dloc(k)) * E * e(i,j);
-            else                %compression - damage has no effect
-                s(1,j) = s(1,j) + 0.5 * E * e(i,j);
-            end
+            s(1,j) = s(1,j) + 0.5 * (1-dloc(k)) * E * e(1,j);
         end
     elseif  (phi(1,j) <= 0 && phi(1,j+1) <= 0)
         s(1,j) = E * e(1,j);
@@ -114,11 +116,7 @@ for j=1:Nelt;
         for k=1:2
             philoc = pg(k)*phi(1,j);
             dloc(k) = dval(philoc,lc);
-            if (e(1,j) >= 0)    %tension - damage reduces capability
-                sloc = sloc + 0.5 * (1-dloc(k)) * E * e(i,j);
-            else                %compression - damage has no effect
-                sloc = sloc + 0.5 * E * e(i,j);
-            end
+            sloc = sloc + 0.5 * (1-dloc(k)) * E * e(1,j);
         end
         s(1,j) = delta *  sloc +  (1-delta) * E * e(1,j);
     elseif  (phi(1,j) <= 0 && phi(1,j+1) > 0)
@@ -127,11 +125,7 @@ for j=1:Nelt;
         for k=1:2
             philoc = pg(k)*phi(1,j+1);
             dloc(k) = dval(philoc,lc);
-            if (e(1,j) >= 0)    %tension - damage reduces capability
-                sloc = sloc + 0.5 * (1-dloc(k)) * E * e(i,j);
-            else                %compression - damage has no effect
-                sloc = sloc + 0.5 * E * e(i,j);
-            end
+            sloc = sloc + 0.5 * (1-dloc(k)) * E * e(1,j);
         end
         s(1,j) = delta *  sloc +  (1-delta) * E * e(1,j);
     end
@@ -146,6 +140,15 @@ for j=2:Nnod-1;
 end
 
 nbiter(1) = 0;
+[phi(1,:),segments]=analyzeDamage(x,phi(1,:),h);
+len = 0;
+for l = 1:length(segments)
+        if (size(segments{l},2)==0)
+            continue;
+        end
+        len = len +1;
+end
+phidot = zeros(1,len);
 
 for i=2:Ntim;
     
@@ -169,122 +172,172 @@ for i=2:Ntim;
         phi(i,j) = phi(i-1,j);
     end
     
-    err_crit = 1e15;
-    nbiter(i) = 0;
-    while (err_crit > 1.e-6)
-        nbiter(i) = nbiter(i) + 1;
-        residu_Y = 0; tangent_Y = 0;
-        loop_residu = 0;
-        loop_tangent = 0;
-        for j=1:Nelt;
-            if (phi(i,j) > 0 && phi(i,j+1) > 0)
-                for k=1:2
-                    philoc = pg(k)*phi(i,j) + (1-pg(k))*phi(i,j+1);
-                    residu_Y = residu_Y + h * 0.5 * (0.5 * E * e(i,j) * e(i,j) - Yc) * dp(philoc,lc);
-                    tangent_Y = tangent_Y + h * 0.5 * (0.5 * E * e(i,j) * e(i,j) - Yc) * dpp(philoc,lc);
+    for l = 1:length(segments)
+        if (size(segments{l},2)==0)
+            continue;
+        end
+
+        sbegin = min(segments{l});
+        send = max(segments{l});
+        
+        err_crit = 1e15;
+        nbiter(i) = 0;
+        residu = 0;
+        while (err_crit > 1.e-6)
+            nbiter(i) = nbiter(i) + 1;
+            residu_Y = 0; tangent_Y = 0;
+            loop_residu = 0;
+            loop_tangent = 0;
+            for j=sbegin:min(send-1,Nelt)
+                if (phi(i,j) > 0 && phi(i,j+1) > 0)
+                    for k=1:2
+                        philoc = pg(k)*phi(i,j) + (1-pg(k))*phi(i,j+1);
+                        residu_Y = residu_Y + h * 0.5 * (0.5 * E * e(i,j) * e(i,j) - Yc) * dp(philoc,lc);
+                        tangent_Y = tangent_Y + h * 0.5 * (0.5 * E * e(i,j) * e(i,j) - Yc) * dpp(philoc,lc);
+                    end
+                    loop_residu = loop_residu + 1;
+                elseif  (phi(i,j) > 0 && phi(i,j+1) <= 0)
+                    delta = h * abs(phi(i,j))/(abs(phi(i,j))+abs(phi(i,j+1)));
+                    for k=1:2
+                        philoc = pg(k)*phi(i,j);
+                        residu_Y = residu_Y + delta *  0.5 * (0.5 * E * e(i,j) * e(i,j) - Yc) * dp(philoc,lc);
+                        tangent_Y = tangent_Y + delta *  0.5 * (0.5 * E * e(i,j) * e(i,j) - Yc) * dpp(philoc,lc);
+                    end
+                    loop_residu = loop_residu + 1;
+                    if (delta < h) tangent_Y = tangent_Y + (0.5 * E * e(i,j) * e(i,j) - Yc)* dp(0,lc);
+                    else tangent_Y = tangent_Y + (0.5 * E * e(i,j+1) * e(i,j+1) - Yc)  * dp(0,lc);
+                    end
+                    loop_tangent = loop_tangent + 1;
+                elseif  (phi(i,j) <= 0 && phi(i,j+1) > 0)
+                    delta = h * abs(phi(i,j+1))/(abs(phi(i,j))+abs(phi(i,j+1)));
+                    for k=1:2
+                        philoc = pg(k)*phi(i,j+1);
+                        residu_Y = residu_Y + delta *  0.5 * (0.5 * E * e(i,j) * e(i,j) - Yc) * dp(philoc,lc);
+                        tangent_Y = tangent_Y + delta *  0.5 * (0.5 * E * e(i,j) * e(i,j) - Yc) * dpp(philoc,lc);
+                    end
+                    loop_residu = loop_residu + 1;
+                    if (delta < h) tangent_Y = tangent_Y + (0.5 * E * e(i,j) * e(i,j) - Yc)* dp(0,lc);  %todo-doublecheck this
+                    else tangent_Y = tangent_Y + (0.5 * E * e(i,j+1) * e(i,j+1) - Yc)  * dp(0,lc);              %todo-doublecheck this
+                    end
+                    loop_tangent = loop_tangent + 1;
+                    
                 end
-                loop_residu = loop_residu + 1;
-            elseif  (phi(i,j) > 0 && phi(i,j+1) <= 0)
-                delta = h * abs(phi(i,j))/(abs(phi(i,j))+abs(phi(i,j+1)));
-                for k=1:2
-                    philoc = pg(k)*phi(i,j);
-                    residu_Y = residu_Y + delta *  0.5 * (0.5 * E * e(i,j) * e(i,j) - Yc) * dp(philoc,lc);
-                    tangent_Y = tangent_Y + delta *  0.5 * (0.5 * E * e(i,j) * e(i,j) - Yc) * dpp(philoc,lc);
+            end
+            
+            % law Ybar = Yc
+            if 1
+                %i
+                %loop_residu
+                %residu_Y
+                %loop_tangent
+                %tangent_Y
+                %i
+                %dval(phi(i-1,1),lc)
+                %err_crit = abs(residu_Y)/(Yc*dval(phi(i-1,1),lc));
+                %if (abs(tangent_Y) <= 1.e-10) tangent_Y = 0.02; end
+                %tangent_Y
+                %dphi = -residu_Y/tangent_Y;
+                %dphi
+                %i
+                %dval(phi(i,1),lc)
+                phimax = max(phi(i,sbegin:send));
+                %phimax=phi(i,sbegin);
+                YbarmYc = residu_Y/(dval(phimax,lc));
+                oldresidu = residu;
+                residu = YbarmYc/Yc
+                err_crit = abs(residu-oldresidu);
+                tangent = tangent_Y/(Yc*dval(phimax,lc)) - (dp(phimax,lc)/dval(phimax,lc)^2) * (YbarmYc/Yc)
+                if (abs(tangent) <= 1.e-10) err_crit = 0.; dphi = 0;
+                else
+                dphi = - residu/tangent
                 end
-                loop_residu = loop_residu + 1;
-                if (delta < h) tangent_Y = tangent_Y + (0.5 * E * e(i,j) * e(i,j) - Yc)* dp(0,lc);
-                else tangent_Y = tangent_Y + (0.5 * E * e(i,j+1) * e(i,j+1) - Yc)  * dp(0,lc);
-                end
-                loop_tangent = loop_tangent + 1;
-            elseif  (phi(i,j) <= 0 && phi(i,j+1) > 0)
-                delta = h * abs(phi(i,j+1))/(abs(phi(i,j))+abs(phi(i,j+1)));
-                for k=1:2
-                    philoc = pg(k)*phi(i,j+1);
-                    residu_Y = residu_Y + delta *  0.5 * (0.5 * E * e(i,j) * e(i,j) - Yc) * dp(philoc,lc);
-                    tangent_Y = tangent_Y + delta *  0.5 * (0.5 * E * e(i,j) * e(i,j) - Yc) * dpp(philoc,lc);
-                end
-                loop_residu = loop_residu + 1;
-                if (delta < h) tangent_Y = tangent_Y + (0.5 * E * e(i,j) * e(i,j) - Yc)* dp(0,lc);  %todo-doublecheck this
-                else tangent_Y = tangent_Y + (0.5 * E * e(i,j+1) * e(i,j+1) - Yc)  * dp(0,lc);              %todo-doublecheck this
-                end
-                loop_tangent = loop_tangent + 1;
+                %dphi = max(min(dphi,L/2),-L/2);
                 
             end
-        end
-        
-        % law Ybar = Yc
-        if 1
-            %i
-            %loop_residu
-            %residu_Y
-            %loop_tangent
-            %tangent_Y
-            %i
-            %dval(phi(i-1,1),lc)
-            %err_crit = abs(residu_Y)/(Yc*dval(phi(i-1,1),lc));
-            %if (abs(tangent_Y) <= 1.e-10) tangent_Y = 0.02; end
-            %tangent_Y
-            %dphi = -residu_Y/tangent_Y;
-            %dphi
-            %i
-            %dval(phi(i,1),lc)
-            phimax = max(phi(i,:)); % this needs revisiting when there are multiple possibilities
-            YbarmYc = residu_Y/(dval(phimax,lc));
-            residu = YbarmYc/Yc;
-            err_crit = abs(residu);
-            tangent = tangent_Y/(Yc*dval(phimax,lc)) - (dp(phimax,lc)/dval(phimax,lc)^2) * (YbarmYc/Yc);
-            if (abs(tangent) <= 1.e-10) err_crit = 0.; dphi = 0;
-            else
-            dphi = - residu/tangent;
+            
+            %delay effect law.
+            if 0
+                tauc=0.4;
+                coef_a=1;
+                l = max(phi(i,1),lc);
+                dpbar = dval(phi(i,1),lc)/l;
+                dphi_iter = phi(i,1) - phi(i-1,1);
+                YbarmYc = residu_Y/(dval(phi(i,1),lc));
+                if (YbarmYc < 0) YbarmYc = 0.; end
+                residu_delay = - dpbar * dphi_iter * tauc/dt + (1-exp(-coef_a*YbarmYc/Yc));
+                err_crit = abs(residu_delay);
+                
+                if (YbarmYc < 0) tangent = 0;
+                else
+                    tangent = tangent_Y/(Yc*dval(phi(i,1),lc)) - (dp(phi(i,1),lc)/dval(phi(i,1),lc)^2) * (YbarmYc/Yc);
+                end
+                
+                tangent_delay = ((-dp(phi(i,1),lc)/l+dval(phi(i,1),lc)/l^2) * dphi_iter - dval(phi(i,1),lc)/l ) * tauc/dt + coef_a*exp(-coef_a*YbarmYc/Yc)*tangent;
+                
+                dphi = -residu_delay/tangent_delay;
             end
             
-        end
-        
-        %delay effect law.
-        if 0
-            tauc=0.4;
-            coef_a=1;
-            l = max(phi(i,1),lc);
-            dpbar = dval(phi(i,1),lc)/l;
-            dphi_iter = phi(i,1) - phi(i-1,1);
-            YbarmYc = residu_Y/(dval(phi(i,1),lc));
-            if (YbarmYc < 0) YbarmYc = 0.; end
-            residu_delay = - dpbar * dphi_iter * tauc/dt + (1-exp(-coef_a*YbarmYc/Yc));
-            err_crit = abs(residu_delay);
-            
-            if (YbarmYc < 0) tangent = 0;
-            else
-                tangent = tangent_Y/(Yc*dval(phi(i,1),lc)) - (dp(phi(i,1),lc)/dval(phi(i,1),lc)^2) * (YbarmYc/Yc);
+
+            if (nbiter(i)>50)
+                dphi = 0;
+                assert(1==0);
             end
             
-            tangent_delay = ((-dp(phi(i,1),lc)/l+dval(phi(i,1),lc)/l^2) * dphi_iter - dval(phi(i,1),lc)/l ) * tauc/dt + coef_a*exp(-coef_a*YbarmYc/Yc)*tangent;
+            if (isnan(dphi))
+                dphi = 0;
+                assert(1==0);                
+            end
             
-            dphi = -residu_delay/tangent_delay;
-        end
-        
-        for j=1:Nnod;
-            phi(i,j) = phi(i,j) + dphi;
-        end
+            for j=sbegin:send;
+                if (i > 6 && intorder >= 6)
+                    w = [60/147 360/147 -450/147 400/147 -225/147 72/147 -10/147];
+                    phihist = [dphi; phi(i-1,j); phi(i-2,j); phi(i-3,j); phi(i-4,j); phi(i-5,j); phi(i-6,j)];                    
+                    phi(i,j) = dphi*2/3 + 4/3*phi(i-1,j) - 1/3*phi(i-2,j);
+                elseif (i > 5 && intorder >= 5)
+                    w = [60/137 300/137 -300/137 200/137 -75/137 12/137];
+                    phihist = [dphi; phi(i-1,j); phi(i-2,j); phi(i-3,j); phi(i-4,j); phi(i-5,j)];
+                    phi(i,j) = w*phihist;  
+                elseif (i > 4 && intorder >= 4)
+                    w = [12/25 48/25 -36/25 16/25 -3/25];
+                    phihist = [dphi; phi(i-1,j); phi(i-2,j); phi(i-3,j); phi(i-4,j)];
+                    phi(i,j) = w*phihist;                    
+                elseif (i > 3 && intorder >= 3)
+                    w = [6/11 18/11 -9/11 2/11];
+                    phihist = [dphi; phi(i-1,j); phi(i-2,j); phi(i-3,j)];
+                    phi(i,j) = w*phihist;
+                elseif (i > 2 && intorder >= 2)
+                    w = [2/3 4/3 -1/3];
+                    phihist = [dphi; phi(i-1,j); phi(i-2,j)];
+                    phi(i,j) = w*phihist;
+                else
+                    phi(i,j) = phi(i,j) + dphi;
+                end
+                phi(i,j) = max(phi(i,j),phi(i-1,j)); %constraint: dphi >= 0
+            end
+        end %while
         
         %err_crit = 0.
         
-    end %while
+    end %for segments
     
-    phidot(i) = (phi(i,1) - phi(i-1,1))/dt;
+    [phi(i,:),segments]=analyzeDamage(x,phi(i,:),h);
     
-    
-    
+    for l=1:length(segments)
+        if (size(segments{l},2)==0)
+            continue;
+        end
+        median(segments{l});
+        smid = floor(median(segments{l}));
+        phidot(i,l) = (phi(i,smid) - phi(i-1,smid))/dt;
+    end
+        
     %updating the stress
     for j=1:Nelt;
         if (phi(i,j) > 0 && phi(i,j+1) > 0)
             for k=1:2
                 philoc = pg(k)*phi(i,j)+ (1-pg(k))*phi(i,j+1);
                 dlocg(k) = dval(philoc,lc);
-                if (e(i,j) >= 0)    %tension - damage reduces capability
-                    s(i,j) = s(i,j) + 0.5 * (1-dlocg(k)) * E * e(i,j);
-                else                %compression - damage has no effect
-                    s(i,j) = s(i,j) + 0.5 * E * e(i,j);
-                end
+                s(i,j) = s(i,j) + 0.5 * (1-dlocg(k)) * E * e(i,j);
             end
         elseif  (phi(i,j) <= 0 && phi(i,j+1) <= 0)
             s(i,j) = E * e(i,j);
@@ -295,11 +348,7 @@ for i=2:Ntim;
             for k=1:2
                 philoc = pg(k)*phi(i,j);
                 dlocg(k) = dval(philoc,lc);
-                if (e(i,j) >= 0)    %tension - damage reduces capability
-                    sloc = sloc + 0.5 * (1-dlocg(k)) * E * e(i,j);
-                else                %compression - damage has no effect
-                    sloc = sloc + 0.5 * E * e(i,j);                    
-                end
+                sloc = sloc + 0.5 * (1-dlocg(k)) * E * e(i,j);
             end
             s(i,j) = delta * sloc +  (1-delta) * E * e(i,j);
         elseif  (phi(i,j) <= 0 && phi(i,j+1) > 0)
@@ -308,11 +357,7 @@ for i=2:Ntim;
             for k=1:2
                 philoc = pg(k)*phi(i,j+1);
                 dlocg(k) = dval(philoc,lc);
-                if (e(i,j) >= 0)    %tension - damage reduces capability
-                    sloc = sloc + 0.5 * (1-dlocg(k)) * E * e(i,j);
-                else                %compression - damage has no effect
-                    sloc = sloc + 0.5 * E * e(i,j);                    
-                end
+                sloc = sloc + 0.5 * (1-dlocg(k)) * E * e(i,j);
             end
             s(i,j) = delta * sloc +  (1-delta) * E * e(i,j);
         end
@@ -358,20 +403,20 @@ end
 
 
 %%
-f=figure;
+fig=figure;
 %plot(x+u(end,:),0*x,'x-');
 %plot(x+u(end,:),[d(end,1) d(end,:)])
 %plot(x+u(end,:),[s(end,1) s(end,:)])
 %plot(x+u(end,:),phi(end,:),'x-')
 %axis([min(min(ones(size(u,1),1)*x+u)),max(max(ones(size(u,1),1)*x+u)),min(min(phi))*1.1,max(max(d))*1.1])
 set(gca,'NextPlot','replaceChildren');
-set(f, 'Position', [100, 100, 1049, 895]);
+
 
 % Preallocate the struct array for the struct returned by getframe
 F(size(u,1)) = struct('cdata',[],'colormap',[]);
 % Record the movie
 for j = 1:size(u,1)
-    clf(1)
+    clf(fig)
     col = [s(j,1) s(j,:)];
     X = x+u(j,:);
     Y = (e(j,:).^2*E*0.5)';
@@ -380,17 +425,17 @@ for j = 1:size(u,1)
     %plot(x+u(j,:),v(j,:),'x-')
     %surface(X,Y,Z,col);
     %plot(x+u(j,:),x*0,'x-');
-    axis([0 1.5 -0.5 1.5])
     hold on
     %plot(x+0*u(j,:),[s(end,1) s(j,:)],'x-')
-    plot(x+1*u(j,:),[d(j,1) d(j,:)],'x-')
+    plot(x+0*u(j,:),[d(j,1) d(j,:)],'x-')
     %plot(x+0*u(j,:),[Y(1);Y(:)],'x-')
-    plot(x+1*u(j,:),phi(j,:),'rx-')
+    plot(x+0*u(j,:),phi(j,:),'rx-')
         xlabel('Position, x')
-    legend('d','\Phi')
+        ylabel('d,\phi')
+    legend('d','\phi')
     title(sprintf('t = %f',t(j)));
     %plot(x,phi(j,:),'x-')
-    F(j) = getframe;    
+    F(j) = getframe(fig);    
 end
 writerObj = VideoWriter('video.avi'); writerObj.Quality = 100;
 open(writerObj);writeVideo(writerObj,F);close(writerObj);
@@ -412,5 +457,15 @@ open(writerObj);writeVideo(writerObj,F);close(writerObj);
 % zlabel('stress')
 
 
+figure
+plot(t,phidot)
+xlabel('Time, t')
+ylabel('d\phi/dt')
+title('Level-Set Movement by Segment')
 
+figure
+plot(x,phi)
+xlabel('Position, x')
+ylabel('\phi')
+title('Level-Set Movement')
 
