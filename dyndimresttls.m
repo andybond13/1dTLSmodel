@@ -182,6 +182,7 @@ for i=2:Ntim;
         
         err_crit = 1e15;
         nbiter(i) = 0;
+        residu = 0;
         while (err_crit > 1.e-6)
             nbiter(i) = nbiter(i) + 1;
             residu_Y = 0; tangent_Y = 0;
@@ -242,13 +243,15 @@ for i=2:Ntim;
                 phimax = max(phi(i,sbegin:send));
                 %phimax=phi(i,sbegin);
                 YbarmYc = residu_Y/(dval(phimax,lc));
-                residu = YbarmYc/Yc;
-                err_crit = abs(residu);
-                tangent = tangent_Y/(Yc*dval(phimax,lc)) - (dp(phimax,lc)/dval(phimax,lc)^2) * (YbarmYc/Yc);
-                %if (abs(tangent) <= 1.e-10) err_crit = 0.; dphi = 0;
-                %else
-                dphi = - residu/tangent;
-                %end
+                oldresidu = residu;
+                residu = YbarmYc/Yc
+                err_crit = abs(residu-oldresidu);
+                tangent = tangent_Y/(Yc*dval(phimax,lc)) - (dp(phimax,lc)/dval(phimax,lc)^2) * (YbarmYc/Yc)
+                if (abs(tangent) <= 1.e-10) err_crit = 0.; dphi = 0;
+                else
+                dphi = - residu/tangent
+                end
+                %dphi = max(min(dphi,L/2),-L/2);
                 
             end
             
@@ -276,7 +279,13 @@ for i=2:Ntim;
             
 
             if (nbiter(i)>50)
+                dphi = 0;
                 assert(1==0);
+            end
+            
+            if (isnan(dphi))
+                dphi = 0;
+                assert(1==0);                
             end
             
             for j=sbegin:send;
