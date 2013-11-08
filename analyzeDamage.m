@@ -46,6 +46,7 @@ for i = 1:length(phi)
            break;
        end
    end
+   phinew(i) = max(phinew(i),phi(i));
 end
 
 %join segments together if same peak
@@ -58,7 +59,3 @@ for j=1:length(list_max)-1
     end
     
 end
-
-
-
-1+1;

@@ -312,6 +312,7 @@ for i=2:Ntim;
                 else
                     phi(i,j) = phi(i,j) + dphi;
                 end
+                phi(i,j) = max(phi(i,j),phi(i-1,j)); %constraint: dphi >= 0
             end
         end %while
         
