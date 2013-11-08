@@ -402,7 +402,7 @@ end
 
 
 %%
-figure
+fig=figure;
 %plot(x+u(end,:),0*x,'x-');
 %plot(x+u(end,:),[d(end,1) d(end,:)])
 %plot(x+u(end,:),[s(end,1) s(end,:)])
@@ -415,7 +415,7 @@ set(gca,'NextPlot','replaceChildren');
 F(size(u,1)) = struct('cdata',[],'colormap',[]);
 % Record the movie
 for j = 1:size(u,1)
-    clf(1)
+    clf(fig)
     col = [s(j,1) s(j,:)];
     X = x+u(j,:);
     Y = (e(j,:).^2*E*0.5)';
@@ -432,8 +432,9 @@ for j = 1:size(u,1)
         xlabel('Position, x')
         ylabel('d,\phi')
     legend('d','\phi')
+    title(sprintf('t = %f',t(j)));
     %plot(x,phi(j,:),'x-')
-    F(j) = getframe;    
+    F(j) = getframe(fig);    
 end
 writerObj = VideoWriter('video.avi'); writerObj.Quality = 100;
 open(writerObj);writeVideo(writerObj,F);close(writerObj);
