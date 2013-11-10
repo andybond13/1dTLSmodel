@@ -54,8 +54,5 @@ for j=1:length(list_max)-1
     if (abs(list_max(j)-list_max(j+1)) < 1e-8)
         segment{j} = [segment{j} segment{j+1}];
         segment{j+1} = [];
-        list_max(j) = [];
-        value_max(j) = [];
     end
-    
 end
