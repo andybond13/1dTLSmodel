@@ -197,7 +197,7 @@ for i=2:Ntim;
                     end
                     loop_residu = loop_residu + 1;
                 elseif  (phi(i,j) > 0 && phi(i,j+1) <= 0)
-                    delta = h * abs(phi(i,j))/(abs(phi(i,j))+abs(phi(i,j+1)));
+                    delta = h * abs(phi(i,j))/(abs(phi(i,j))+abs(phi(i,j+1))); %phi>0 portion
                     for k=1:2
                         philoc = pg(k)*phi(i,j);
                         residu_Y = residu_Y + delta *  0.5 * (0.5 * E * e(i,j) * e(i,j) - Yc) * dp(philoc,lc);
@@ -209,7 +209,7 @@ for i=2:Ntim;
                     end
                     loop_tangent = loop_tangent + 1;
                 elseif  (phi(i,j) <= 0 && phi(i,j+1) > 0)
-                    delta = h * abs(phi(i,j+1))/(abs(phi(i,j))+abs(phi(i,j+1)));
+                    delta = h * abs(phi(i,j+1))/(abs(phi(i,j))+abs(phi(i,j+1))); %phi>0 portion
                     for k=1:2
                         philoc = pg(k)*phi(i,j+1);
                         residu_Y = residu_Y + delta *  0.5 * (0.5 * E * e(i,j) * e(i,j) - Yc) * dp(philoc,lc);
@@ -217,7 +217,7 @@ for i=2:Ntim;
                     end
                     loop_residu = loop_residu + 1;
                     if (delta < h) tangent_Y = tangent_Y + (0.5 * E * e(i,j) * e(i,j) - Yc)* dp(0,lc);  %todo-doublecheck this
-                    else tangent_Y = tangent_Y + (0.5 * E * e(i,j+1) * e(i,j+1) - Yc)  * dp(0,lc);              %todo-doublecheck this
+                    else tangent_Y = tangent_Y + (0.5 * E * e(i,j-1) * e(i,j-1) - Yc)  * dp(0,lc);              %todo-doublecheck this
                     end
                     loop_tangent = loop_tangent + 1;
                     
