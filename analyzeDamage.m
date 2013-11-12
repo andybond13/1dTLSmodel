@@ -15,12 +15,14 @@ for i = 1:length(phi)-1
         end
     end
     if ((i == 1) && phi(1)>phi(2))
-                    list_max(end+1) = x(i);
-                    value_max(end+1) = phi(i);
+
+        list_max(end+1) = x(i);
+        value_max(end+1) = phi(i);
     end
     if ((i == length(phi)-1) && phi(i+1)>phi(i))
-                    list_max(end+1) = x(i+1);
-                    value_max(end+1) = phi(i+1);
+
+        list_max(end+1) = x(i+1);
+        value_max(end+1) = phi(i+1);
     end
 
 end
