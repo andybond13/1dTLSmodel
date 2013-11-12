@@ -434,9 +434,10 @@ for j = 1:size(u,1)
     plot(x+0*u(j,:),[d(j,1) d(j,:)],'x-')
     %plot(x+0*u(j,:),[Y(1);Y(:)],'x-')
     plot(x+0*u(j,:),phi(j,:),'rx-')
+    plot(x+0*u(j,:),[s(j,1) s(j,:)],'gx-')
         xlabel('Position, x')
-        ylabel('d,\phi')
-    legend('d','\phi')
+        ylabel('d,\phi,\sigma')
+    legend('d','\phi','\sigma')
     title(sprintf('t = %f',t(j)));
     %plot(x,phi(j,:),'x-')
     F(j) = getframe(fig);    
