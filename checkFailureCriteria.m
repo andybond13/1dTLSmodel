@@ -40,11 +40,9 @@ for i=1:length(qty)
     if (qtyc > criterion)
         if (strcmp(elemOrNodal,'nodal'))
             xlist(end+1) = x(i);
-            phi(i)
         else
             %assume middle of element
             xlist(end+1) = 0.5*(x(i)+x(i+1));
-            phi(i)
         end
     end
 end
