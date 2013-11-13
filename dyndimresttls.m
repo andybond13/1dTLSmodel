@@ -60,6 +60,10 @@ m = rho * h * A * ones(Nnod);
 m(1) = m(1)/2;
 m(Nnod) = m(Nnod)/2;
 
+%velocity boundary condition at end of bar
+v_end = 0.12;
+vbc = 1;
+
 %initialization
 for j=1:Nnod;
     x(j) = (j-1) * h;
@@ -78,9 +82,9 @@ end;
 % and ill thus give an unloading wave.
 
 for j=1:Nnod;
-    u(1,j) = x(j) * ec * L * 0.999;
-    ustat(1,j) = x(j) * ec * L * 0.999;
-    phi(1,j) = h-x(j);
+    u(1,j) = x(j) * ec * L * 0.999*0;
+    ustat(1,j) = x(j) * ec * L * 0.999*0;
+    phi(1,j) = (h-x(j))*0-1;
 %     if (x(j) > 0.3)
 %        phi(1,j) = x(j)-0.6+h;
 %     end
@@ -381,6 +385,13 @@ for i=2:Ntim;
     
     %correction
     v(i,:)= v(i,:) + 0.5*dt*a(i,:);
+    
+    %apply velocity boundary condition (if one exists)
+    if (vbc == 1)
+        v(i,end) = v_end;
+        a(i,end) = 0;
+        s(i,end) = s(i,j-1);
+    end
     
     
 end

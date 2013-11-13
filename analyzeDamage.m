@@ -34,6 +34,11 @@ end
 
 assert(length(x) >= 1);
 
+if (length(value_max) == length(list_max) && length(value_max) == 0)
+    phinew = phi;
+    return;
+end
+
 for i = 1:length(phi)
    phinew(i) = -min(-value_max+abs(x(i) -list_max));
    dir = 0;
