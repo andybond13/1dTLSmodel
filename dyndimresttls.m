@@ -456,8 +456,8 @@ F(size(u,1)) = struct('cdata',[],'colormap',[]);
 for j = 1:size(u,1)
     clf(fig)
     col = [s(j,1) s(j,:)];
+    Y = (e(j,:).*s(j,:)*E*0.5)';
     X = x+u(j,:);
-    Y = (e(j,:).^2*E*0.5)';
     Z = x*0;
     %plot(x,u(j,:)+x,'x-')
     %plot(x+u(j,:),v(j,:),'x-')
@@ -466,12 +466,12 @@ for j = 1:size(u,1)
     hold on
     %plot(x+0*u(j,:),[s(end,1) s(j,:)],'x-')
     plot(x+0*u(j,:),[d(j,1) d(j,:)],'x-')
-    %plot(x+0*u(j,:),[Y(1);Y(:)],'x-')
     plot(x+0*u(j,:),phi(j,:),'rx-')
-    plot(x+0*u(j,:),[s(j,1) s(j,:)],'gx-')
+    plot(x+0*u(j,:),[Y(1);Y(:)]/Yc,'xg-')
+    %plot(x+0*u(j,:),[s(j,1) s(j,:)],'gx-')
         xlabel('Position, x')
-        ylabel('d,\phi,\sigma')
-    legend('d','\phi','\sigma')
+        ylabel('d,\phi,Y/Yc')
+    legend('d','\phi','Y/Yc')
     title(sprintf('t = %f',t(j)));
     %plot(x,phi(j,:),'x-')
     F(j) = getframe(fig);    
