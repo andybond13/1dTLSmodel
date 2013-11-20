@@ -3,6 +3,12 @@ function[phinew,newsegment]=analyzeDamage(x,phi,h)
 %produce:
 %new phi based on distances - maxima
 
+if (sum(phi) == -1*length(phi))
+    phinew = phi;
+    newsegment={};
+    return;
+end
+
 list_max = [];
 value_max = [];
 %direction = []; %1 or -1: slope

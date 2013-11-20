@@ -184,6 +184,11 @@ for i=2:Ntim;
         sbegin = min(segments{l});
         send = max(segments{l});
         
+        %skip if all negative
+        if (sum(phi(i,sbegin:send)<0) == send-sbegin+1)
+            continue;
+        end
+        
         err_crit = 1e15;
         nbiter(i) = 0;
         residu = 0;
