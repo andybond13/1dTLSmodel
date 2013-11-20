@@ -244,13 +244,28 @@ for i=2:Ntim;
                 %dphi
                 %i
                 %dval(phi(i,1),lc)
+                flag = 1; %0 is exterior (damage centered on edge of domain); 1 is interior
+                if (l == 1 && phi(i,1) > phi(i,2))
+                    flag = 0;
+                end
+                if (l == length(segments) && phi(i,end) > phi(i,end-1))
+                    flag = 0;
+                end
                 phimax = max(phi(i,sbegin:send));
+                iphimax = find(phi(i,sbegin:send) == phimax);
+                if (iphimax == Nnod)
+                    phimaxY = 1/2*E*e(i,Nelt).^2;
+                else
+                    phimaxY = 1/2*E*e(i,iphimax).^2;
+                end
+
                 %phimax=phi(i,sbegin);
                 YbarmYc = residu_Y/(dval(phimax,lc));
                 oldresidu = residu;
                 residu = YbarmYc/Yc;
                 err_crit = abs(residu-oldresidu);
-                tangent = tangent_Y/(Yc*dval(phimax,lc)) - (dp(phimax,lc)/dval(phimax,lc)^2) * (YbarmYc/Yc);
+                tangent = (tangent_Y + 0*(phimaxY-Yc)*dp(phimax,lc)/2)/(Yc*dval(phimax,lc)) - ((1+0/2)*dp(phimax,lc)/dval(phimax,lc)^2) * (YbarmYc/Yc);
+                tangent = (tangent_Y + flag*(phimaxY-Yc)*dp(phimax,lc)/2)/(Yc*dval(phimax,lc)) - ((1+flag/2)*dp(phimax,lc)/dval(phimax,lc)^2) * (YbarmYc/Yc);
                 if (abs(tangent) <= 1.e-10) err_crit = 0.; dphi = 0;
                 else
                 dphi = - residu/tangent;
@@ -325,7 +340,7 @@ for i=2:Ntim;
     end %for segments
     
     %check for nucleation
-    phi(i,:) = checkFailureCriteria(x,phi(i,:),Yc,'elem',0.5*E*e(i,:).^2,0,0,h);
+    phi(i,:) = checkFailureCriteria(x,phi(i,:),Yc,'elem',0.5*E*e(i,:).^2,0,0,2*h);
     
     %enforce phi constraints
     [phi(i,:),segments]=analyzeDamage(x,phi(i,:),h);
