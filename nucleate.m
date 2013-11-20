@@ -24,5 +24,6 @@ for j = 1:length(xnuc)
     
     phi(loc) = phinuc(j) - delta*h;
     phi(loc+1) = phinuc(j) - (1-delta)*h;
-    
+    sprintf('crack nucleated')
 end
+
