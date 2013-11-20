@@ -456,7 +456,7 @@ F(size(u,1)) = struct('cdata',[],'colormap',[]);
 for j = 1:size(u,1)
     clf(fig)
     col = [s(j,1) s(j,:)];
-    Y = (e(j,:).*s(j,:)*E*0.5)';
+    Y = (e(j,:).*s(j,:)*0.5)';
     X = x+u(j,:);
     Z = x*0;
     %plot(x,u(j,:)+x,'x-')
