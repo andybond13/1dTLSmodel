@@ -35,8 +35,6 @@ strain_energy = zeros(Ntim, 1);
 kinetic_energy = zeros(Ntim, 1);
 dissip_energy = zeros(Ntim, 1);
 
-
-
 bpos = zeros(Ntim, Nelt);
 grad = zeros(Ntim, Nelt);
 
@@ -61,10 +59,6 @@ m = rho * h * A * ones(Nnod);
 m(1) = m(1)/2;
 m(Nnod) = m(Nnod)/2;
 
-%velocity boundary condition at end of bar
-v_end = 0.12;
-vbc = 1;
-
 %initialization
 for j=1:Nnod;
     x(j) = (j-1) * h;
@@ -82,25 +76,30 @@ end;
 % This extra damage will create new stress that are less than in the next element
 % and ill thus give an unloading wave.
 
+%constant strain rate applied
+csr = 0.25;
+vbc = 1;
+v(1,:) = vbc*csr*x;
+
 for j=1:Nnod;
-    u(1,j) = x(j) * ec * L * 0.999*0;
-    ustat(1,j) = x(j) * ec * L * 0.999*0;
-    phi(1,j) = (h-x(j))*0-1;
-%     if (x(j) > 0.3)
-%        phi(1,j) = x(j)-0.6+h;
-%     end
-%         if (x(j) > 0.6)
-%             phi(1,j) = 0.6-x(j)+h;
-%         end
-% %     if (x(j) > 0.7)
-% %       phi(1,j) = 0.8-x(j)+h;
-% %     end
-% %     if (x(j) > 0.1)
-% %        phi(1,j) = x(j)-0.2+h;
-% %     end
+    u(1,j) = x(j) * ec * L * 0.999*(1-vbc);
+    ustat(1,j) = x(j) * ec * L * 0.999*(1-vbc);
+    phi(1,j) = (2*h-x(j))*(1-vbc)-vbc;%*0-1;
 % %     if (x(j) > 0.3)
-% %       phi(1,j) = 0.4-x(j)+h;
+% %        phi(1,j) = x(j)-0.6+2*h;
 % %     end
+% % %         if (x(j) > 0.6)
+% % %             phi(1,j) = 0.6-x(j)+2*h;
+% % %         end
+% %     if (x(j) > 0.7)
+% %       phi(1,j) = 0.8-x(j)+2*h;
+% %     end
+%     if (x(j) > 0.1)
+%        phi(1,j) = x(j)-0.2+2*h;
+%     end
+%     if (x(j) > 0.3)
+%       phi(1,j) = 0.4-x(j)+2*h;
+%     end
 
 end
 
@@ -410,13 +409,6 @@ for i=2:Ntim;
     %correction
     v(i,:)= v(i,:) + 0.5*dt*a(i,:);
     
-    %apply velocity boundary condition (if one exists)
-    if (vbc == 1)
-        v(i,end) = v_end;
-        a(i,end) = 0;
-        s(i,end) = s(i,j-1);
-    end
-    
     %record number of fragments and quantities per fragment
     [nfrags(i),fragment_list] = findFragments(x,phi(i,:),d(i,:));
     
@@ -460,7 +452,7 @@ F(size(u,1)) = struct('cdata',[],'colormap',[]);
 for j = 1:size(u,1)
     clf(fig)
     col = [s(j,1) s(j,:)];
-    Y = (e(j,:).*s(j,:)*0.5)';
+    Y = (e(j,:).*s(j,:)*0.5)'; %this equals Y above *(1-d)
     X = x+u(j,:);
     Z = x*0;
     %plot(x,u(j,:)+x,'x-')
@@ -475,7 +467,7 @@ for j = 1:size(u,1)
     %plot(x+0*u(j,:),[s(j,1) s(j,:)],'gx-')
         xlabel('Position, x')
         ylabel('d,\phi,Y/Yc')
-    legend('d','\phi','Y/Yc')
+    legend('d','\phi','Y/Yc',0)
     title(sprintf('t = %f',t(j)));
     %plot(x,phi(j,:),'x-')
     F(j) = getframe(fig);    
