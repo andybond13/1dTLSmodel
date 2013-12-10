@@ -16,7 +16,7 @@ for i=1:length(x)-1
             send = i+1;
         end
         if ((i > 1) && (i < length(x)))
-            if (phi(i)>phi(i-1) && phi(i)>phi(i+1))
+            if (phi(i)>phi(i-1) && phi(i)>phi(i+1) && d(i) == 1)
                 send = i;
             end
         end
