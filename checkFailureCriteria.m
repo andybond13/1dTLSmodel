@@ -17,6 +17,11 @@ else
     assert(length(x) == length(qty)+1);
 end
 
+assert((length(qty) == length(criterion)) || (length(criterion) == 1))
+if (length(criterion) == 1)
+    criterion = criterion*ones(size(qty));
+end
+    
 xlist = [];
 
 for i=1:length(qty)
@@ -37,7 +42,7 @@ for i=1:length(qty)
     if (absOrAsIs == 1)
         qtyc = abs(qtyc);
     end
-    if (qtyc > criterion)
+    if (qtyc > criterion(i))
         if (strcmp(elemOrNodal,'nodal'))
             xlist(end+1) = x(i);
         else
