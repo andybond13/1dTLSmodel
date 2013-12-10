@@ -346,7 +346,7 @@ for i=2:Ntim;
     end %for segments
     
     %check for nucleation
-    phi(i,:) = checkFailureCriteria(x,phi(i,:),Yc,'elem',0.5*E*e(i,:).^2,0,0,2*h);
+    phi(i,:) = checkFailureCriteria(t(i),x,phi(i,:),Yc,'elem',0.5*E*e(i,:).^2,0,0,2*h);
     
     %enforce phi constraints
     [phi(i,:),segments]=analyzeDamage(x,phi(i,:),h);

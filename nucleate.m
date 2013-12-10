@@ -1,4 +1,4 @@
-function[phi] = nucleate(x,phi,xnuc,phinuc)
+function[phi] = nucleate(t,x,phi,xnuc,phinuc)
 %x      -mesh
 %phi    -level-set calculated at this time-step
 %xnuc   -location(s) of localizations to be nucleated
@@ -24,6 +24,6 @@ for j = 1:length(xnuc)
     
     phi(loc) = phinuc(j) - delta*h;
     phi(loc+1) = phinuc(j) - (1-delta)*h;
-    sprintf('crack nucleated')
+    sprintf('crack nucleated, t = %f, x = %f',t,xnuc(j))
 end
 

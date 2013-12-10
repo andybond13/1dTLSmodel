@@ -1,4 +1,4 @@
-function phi = checkFailureCriteria(x,phi,criterion,elemOrNodal,qty,absOrAsIs,phiPos,failvalue)
+function phi = checkFailureCriteria(t,x,phi,criterion,elemOrNodal,qty,absOrAsIs,phiPos,failvalue)
 %x              -mesh
 %phi            -level-set calculated at this time-step
 %criterion      -criterion to compare against for failure
@@ -48,5 +48,5 @@ for i=1:length(qty)
 end
 %nucleate list
 for i=1:length(xlist)
-    phi = nucleate(x,phi,xlist(i),failvalue);
+    phi = nucleate(t,x,phi,xlist(i),failvalue);
 end
