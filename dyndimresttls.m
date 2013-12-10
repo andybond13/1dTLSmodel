@@ -54,6 +54,7 @@ phidot = zeros(Ntim,1);
 ddotbar = zeros(Ntim,1);
 dissip = zeros(Ntim,1);
 nbiter = zeros(Ntim,1);
+nfrags = zeros(Ntim,1);
 
 
 m = rho * h * A * ones(Nnod);
@@ -416,6 +417,9 @@ for i=2:Ntim;
         s(i,end) = s(i,j-1);
     end
     
+    %record number of fragments and quantities per fragment
+    [nfrags(i),fragment_list] = findFragments(x,phi(i,:),d(i,:));
+    
     
 end
 
@@ -507,4 +511,11 @@ plot(x,phi)
 xlabel('Position, x')
 ylabel('\phi')
 title('Level-Set Movement')
+
+figure
+plot(t,[nfrags,dissip_energy/dissip_energy(end)*nfrags(end)])
+xlabel('Time, t')
+ylabel('# of Fragments')
+title('Fragment Count')
+legend('# frags','scaled dissip energy',0)
 
