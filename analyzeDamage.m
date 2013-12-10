@@ -23,7 +23,7 @@ for i = 1:length(phi)-1
             value_max(end+1) = phi(i) + delta;
         end
     end
-    if ((i == 1) && phi(1)>phi(2))
+    if ((i == 1) && (phi(1)-phi(2)> -eps))
 
         list_max(end+1) = x(i);
         value_max(end+1) = phi(i);
@@ -96,18 +96,18 @@ for i=1:length(segment)
         newsegment{end+1} = indices(find(indices<=iphimax));
         newsegment{end+1} = indices(find(indices>iphimax));
     elseif ((phinew(indices(1)) > phinew(indices(2))))% && (phinew(indices(end)) < phinew(indices(end-1))))
-        %not hat - copy
+        %not hat - copy as is
         list_maxnew(end+1) = list_max(i);
         value_maxnew(end+1) = value_max(i);
         newsegment{end+1} = segment{i};
     elseif ((phinew(indices(1)) < phinew(indices(2))) && (phinew(indices(end)) > phinew(indices(end-1))))
-        %hot hat - copy
+        %hot hat - copy as is
         list_maxnew(end+1) = list_max(i);
         value_maxnew(end+1) = value_max(i);
         newsegment{end+1} = segment{i};        
     else
-        indices
-        phinew(indices)
+        [list_max;value_max]
+        [indices;x(indices);phinew(indices)]
         plot(x(indices),phinew(indices))
         assert(1==0);
     end
