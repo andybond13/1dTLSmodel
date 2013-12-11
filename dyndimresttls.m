@@ -435,6 +435,8 @@ for i = 1:Ntim;
     tot_energy(i) = strain_energy(i) + kinetic_energy(i) + dissip_energy(i);
 end
 
+sprintf('Final number of fragments: %i \n Final dissipated energy: %f \n',nfrags(end),dissip_energy(end))
+
 
 %%
 fig=figure;
@@ -490,7 +492,7 @@ open(writerObj);writeVideo(writerObj,F);close(writerObj);
 % zlabel('displacement')
 % surf(t,x,[s(1:s) s]','EdgeAlpha',0.5)
 % zlabel('stress')
-
+%%
 
 figure
 plot(t,phidot)
