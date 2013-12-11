@@ -438,7 +438,20 @@ for i = 1:Ntim;
     tot_energy(i) = strain_energy(i) + kinetic_energy(i) + dissip_energy(i) - ext_energy(i);
 end
 
-sprintf('Final number of fragments: %i \n Final dissipated energy: %f \n',nfrags(end),dissip_energy(end))
+
+minfrag = L*2;
+for i=1:length(round(nfrags(end)/2))
+    
+    fragLen = (fragment_list{i}(2)-fragment_list{i}(1))*h;
+    if ((mod(nfrags(end),2) == 1) && (i == 1))
+        fragLen = fragLen * 2;
+    end
+
+    if (fragLen < minfrag)
+        minfrag = fragLen;
+    end
+end
+sprintf('Final number of fragments: %i \nMinimum fragment length: %f \nFinal dissipated energy: %f \n',nfrags(end),minfrag,dissip_energy(end))
 
 
 %%
