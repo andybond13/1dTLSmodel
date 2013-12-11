@@ -34,6 +34,8 @@ Y = zeros(Ntim, Nelt);
 strain_energy = zeros(Ntim, 1);
 kinetic_energy = zeros(Ntim, 1);
 dissip_energy = zeros(Ntim, 1);
+ext_energy = zeros(Ntim, 1);
+tot_energy = zeros(Ntim, 1);
 
 bpos = zeros(Ntim, Nelt);
 grad = zeros(Ntim, Nelt);
@@ -400,7 +402,7 @@ for i=2:Ntim;
     if (phi(i,1) <= lc) a(i,1) = 0;
     else a(i,1) =  A*s(i,1) /m(1);
     end
-    a(i,Nnod) = 0;
+    a(i,Nnod) = 0; %note: this is a constraint which was hidden. if free, it would be -s(i,Nnod)/m(j);
     for j=2:Nnod-1;
         a(i,j) = A*(s(i,j) - s(i,j-1)) /m(j);
     end
@@ -430,9 +432,10 @@ for i = 1:Ntim;
     for j=1:Nelt;
         Ystat(i,j) = 0.5*E*((ustat(i,j+1)-ustat(i,j))/h)^2;
     end;
+    if (i > 1) ext_energy(i) = (a(i,Nnod)*m(j)+s(i,Nnod-1))*v(i,Nnod)*dt + ext_energy(i-1); end
     if (i > 1) dissip_energy(i) = dissip_energy(i-1) + dissip(i); end
     strain_energy(i) = sum (energy(i,:));
-    tot_energy(i) = strain_energy(i) + kinetic_energy(i) + dissip_energy(i);
+    tot_energy(i) = strain_energy(i) + kinetic_energy(i) + dissip_energy(i) - ext_energy(i);
 end
 
 sprintf('Final number of fragments: %i \n Final dissipated energy: %f \n',nfrags(end),dissip_energy(end))
@@ -512,4 +515,12 @@ xlabel('Time, t')
 ylabel('# of Fragments')
 title('Fragment Count')
 legend('# frags','scaled dissip energy',0)
+
+
+figure
+plot(t,[strain_energy, kinetic_energy, ext_energy, dissip_energy,  tot_energy])
+xlabel('Time, t')
+ylabel('Energy')
+title('Energy Plot')
+legend('str_E', 'kin_E', 'ext_E', 'dissip_E','total_E',0)
 
