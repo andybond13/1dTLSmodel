@@ -359,8 +359,8 @@ for i=2:Ntim;
         median(segments{l});
         smid = floor(median(segments{l}));
         phidot(i,l) = (phi(i,smid) - phi(i-1,smid))/dt;
-        if phidot(i,1)*dt > h
-            sprintf('level-set front advancing more than one element per time-step: segment %u , dphi/h = %f',l,phidot(i,1)*dt/h)
+        if phidot(i,1)*dt > h*1.01
+            sprintf('level-set front advancing more than one element per time-step: t=%f, segment %u , dphi/h = %f',t(i),l,phidot(i,1)*dt/h)
         end
     end
         
