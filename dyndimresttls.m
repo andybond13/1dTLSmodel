@@ -317,8 +317,8 @@ for i=2:Ntim;
             for j=sbegin:send;
                 if (i > 6 && intorder >= 6)
                     w = [60/147 360/147 -450/147 400/147 -225/147 72/147 -10/147];
-                    phihist = [dphi; phi(i-1,j); phi(i-2,j); phi(i-3,j); phi(i-4,j); phi(i-5,j); phi(i-6,j)];                    
-                    phi(i,j) = dphi*2/3 + 4/3*phi(i-1,j) - 1/3*phi(i-2,j);
+                    phihist = [dphi; phi(i-1,j); phi(i-2,j); phi(i-3,j); phi(i-4,j); phi(i-5,j); phi(i-6,j)]; 
+                    phi(i,j) = w*phihist;  
                 elseif (i > 5 && intorder >= 5)
                     w = [60/137 300/137 -300/137 200/137 -75/137 12/137];
                     phihist = [dphi; phi(i-1,j); phi(i-2,j); phi(i-3,j); phi(i-4,j); phi(i-5,j)];
@@ -440,9 +440,13 @@ end
 
 
 minfrag = L*2;
-for i=1:length(round(nfrags(end)/2))
+sumfrag = 0;
+for i=1:round(nfrags(end)/2)
     
-    fragLen = (fragment_list{i}(2)-fragment_list{i}(1))*h;
+    fragLen = (fragment_list{i}(2)-fragment_list{i}(1)+1)*h;
+    if (i == 1)
+        fragLen = fragLen - h;
+    end
     if ((mod(nfrags(end),2) == 1) && (i == 1))
         fragLen = fragLen * 2;
     end
@@ -450,9 +454,11 @@ for i=1:length(round(nfrags(end)/2))
     if (fragLen < minfrag)
         minfrag = fragLen;
     end
+    sumfrag = sumfrag  + fragLen;
 end
 sprintf('Final number of fragments: %i \nMinimum fragment length: %f \nFinal dissipated energy: %f \n',nfrags(end),minfrag,dissip_energy(end))
-
+max(nfrags)
+assert(abs(sumfrag - 1) < h);
 
 %%
 fig=figure;
