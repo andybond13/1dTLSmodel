@@ -359,8 +359,8 @@ for i=2:Ntim;
         median(segments{l});
         smid = floor(median(segments{l}));
         phidot(i,l) = (phi(i,smid) - phi(i-1,smid))/dt;
-        if phidot(i,1)*dt > h*1.01
-            sprintf('level-set front advancing more than one element per time-step: t=%f, segment %u , dphi/h = %f',t(i),l,phidot(i,1)*dt/h)
+        if phidot(i,l)*dt > h*1.01
+            sprintf('level-set front advancing more than one element per time-step: t=%f, segment %u , dphi/h = %f',t(i),l,phidot(i,l)*dt/h)
         end
     end
         
@@ -432,7 +432,7 @@ for i = 1:Ntim;
     for j=1:Nelt;
         Ystat(i,j) = 0.5*E*((ustat(i,j+1)-ustat(i,j))/h)^2;
     end;
-    if (i > 1) ext_energy(i) = (a(i,Nnod)*m(j)+s(i,Nnod-1))*v(i,Nnod)*dt + ext_energy(i-1); end
+    if (i > 1) ext_energy(i) = (a(i,Nnod)*m(i)+s(i,Nnod-1))*v(i,Nnod)*dt + ext_energy(i-1); end
     if (i > 1) dissip_energy(i) = dissip_energy(i-1) + dissip(i); end
     strain_energy(i) = sum (energy(i,:));
     tot_energy(i) = strain_energy(i) + kinetic_energy(i) + dissip_energy(i) - ext_energy(i);

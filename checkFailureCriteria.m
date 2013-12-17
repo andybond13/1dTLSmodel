@@ -51,7 +51,8 @@ for i=1:length(qty)
         end
     end
 end
+
 %nucleate list
-for i=1:length(xlist)
-    phi = nucleate(t,x,phi,xlist(i),failvalue);
+if (~isempty(xlist))
+    phi = nucleate(t,x,phi,xlist,failvalue*ones(length(xlist),1));
 end
